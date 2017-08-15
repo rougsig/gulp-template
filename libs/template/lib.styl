@@ -1,0 +1,53 @@
+mt()
+	margin-top: arguments
+mb()
+	margin-bottom: arguments
+mr()
+	margin-right: arguments
+ml()
+	margin-left: arguments
+
+pt()
+	padding-top: arguments
+pb()
+	padding-bottom: arguments
+pr()
+	padding-right: arguments
+pl()
+	padding-left: arguments
+
+bt()
+	border-top: arguments
+bb()
+	border-bottom: arguments
+br()
+	border-right: arguments
+bl()
+	border-left: arguments
+
+minSize(widht, height)
+	min-width: widht
+	min-height: height
+maxSize(widht, height)
+	max-width: widht
+	max-height: height
+
+icon($name)
+	background-image: url("../icons/"$name)
+	size: width($name) height($name)
+iconB($name)
+	position: relative
+	min-width: width($name)
+	min-height: height($name)
+	&:before
+		content: ""
+		position: absolute
+		icon($name)
+iconA($name)
+	position: relative
+	min-width: width($name)
+	min-height: height($name)
+	&:after
+		content: ""
+		position: absolute
+		icon($name)

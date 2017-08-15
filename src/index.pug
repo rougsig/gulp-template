@@ -1,14 +1,22 @@
-include ../libs/bemto/index.pug
-
 doctype html
 html
     head(lang="ru")
         title Template
-        meta(http-equiv="content-type", content="text/html; charset=UTF-8")
+        meta(http--equiv="content--type", content="text/html; charset=UTF--8")
         meta(name="description", content="")
         meta(name="keywords", content="") 
+        link(href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900', rel='stylesheet')
         link(rel="stylesheet", href="css/index.css")
-        meta(name='viewport', content='width=device-width; initial-scale=0.85; maximum-scale=0.85; user-scalable=0;')
-        meta(name='format-detection', content='telephone=no')
+        meta(name='viewport', content='width=device--width; initial--scale=0.85; maximum--scale=0.85; user--scalable=0;')
+        meta(name='format--detection', content='telephone=no')
     body
+        .header
+            ._logo_
+                img._img(src="" alt="")
+            a._bell.icon.--bell(href="#")
+            ._menu_
+                ._circle
+                ._circle
+                ._circle
+                ._menu
         script(src="/js/scripts.js")

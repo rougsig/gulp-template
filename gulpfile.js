@@ -5,6 +5,7 @@ var browserSync = require('browser-sync');
 var reload = browserSync.reload;
 
 var pug = require('gulp-pug');
+var pugBEMify = require('./libs/bemify');
 
 var postcss = require('gulp-postcss');
 var stylus = require('gulp-stylus');
@@ -72,7 +73,11 @@ gulp.task('css', function() {
                 poststylus([
                     autoprefixer,
                     rucksack,
-                    short,
+                    short({
+                        "spacing": {
+                            "skip": "a"
+                        }
+                    }),
                     mqpacker,
                     pxtorem
                 ])
@@ -110,7 +115,10 @@ gulp.task('css', function() {
 gulp.task('pug', function() {
     gulp.src(path.src.html)
         .pipe(plumber())
-        .pipe(pug())
+        .pipe(pug({
+            pretty: true,
+            plugins : [pugBEMify()]
+        }))
         .pipe(gulp.dest(path.build.html))
         .pipe(reload({
             stream: true
