@@ -154,7 +154,7 @@ class Bemifier {
                     this.setCurrentBlock(block)
                 }
             } else if (token.val.match(this.settings.modifier)) { // NewModifier
-                var modifier = token.val.replace(/-/g, "")
+                var modifier = token.val.replace(/--/g, "")
                 this.bemTokens.push(
                     new BemToken(this, token)
                     .setBlock(this.currentBlock)
