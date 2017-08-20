@@ -1,66 +1,181 @@
-function Bemifier() {
-    this.bemBlocks = [];
+class BemToken {
+    constructor(bemifier, token) {
+        this.bemifier = bemifier
+        this.token = token
 
-    this.prevToken = this.prevToken || null;
+        this.block = null
+        this.element = null
+        this.modifier = null
+        this.type = token.type
+        this.line = token.line
+        this.col = bemifier.lines.get(this.line)
+        this.val = null
+    }
 
-    this.currentBEMBlock = this.currentBEMBlock || null;
-    this.currentBEMElement = this.currentBEMElement || null;
+    updateValue() {
+        var val = this.block
+        if (this.element)
+            val += this.bemifier.settings.element + this.element
+        if (this.modifier)
+            val += this.bemifier.settings.modifier + this.modifier
+        this.val = val
+        return this
+    }
+
+    setBlock(block) {
+        this.block = block
+        return this
+    }
+
+    setElement(element) {
+        this.element = element
+        return this
+    }
+
+    setModifier(modifier) {
+        this.modifier = modifier
+        return this
+    }
 }
 
-Bemifier.prototype = {
-    bemify: function (token, settings) {
+class Bemifier {
+    constructor() {
+        this.bemTokens = []
+        this.bemBlocks = []
+
+        this.prevToken = null
+        this.currentBlock = null
+        this.currentElement = null
+
+        this.lines = new Map()
+
+        this.settings = {
+            'element': '_',
+            'beforeBlock': '__',
+            'modifier': '--'
+        };
+    }
+
+    setCurrentBlock(bemToken) {
+        this.currentBlock = bemToken.block
+        this.currentElement = null
+
+        if (this.bemBlocks.length >= 2 && this.getBlock(1).line == this.getBlock(2).line)
+            this.bemBlocks.pop()
+
+        this.bemBlocks.push(bemToken)
+    }
+
+    setCurrentElement(element) {
+        this.currentElement = element
+    }
+
+    getBlock(index) {
+        return this.bemBlocks[this.bemBlocks.length - index]
+    }
+
+    bemify(token) {
+        if (this.lines.size < token.line && (token.type == "tag" || token.type == "class"))
+            this.lines.set(token.line, token.col)
+
         if (this.prevToken) {
             switch (this.prevToken.type) {
                 case 'outdent':
                 case 'newline':
-                    if (this.currentBEMBlock && token.col <= this.currentBEMBlock.col) {
-                        this.bemBlocks.pop();
+                    if (token.col <= this.getBlock(1).col) {
+                        this.bemBlocks.pop()
                     }
-                    this.currentBEMBlock = this.bemBlocks[this.bemBlocks.length - 1];
+                    this.currentBlock = this.getBlock(1).block
             }
         }
         this.prevToken = token;
-        if (token.type == 'class') {
-            if (token.val.match(/^[a-zA-Z]/)) {
-                this.bemBlocks.push(token);
-                this.currentBEMBlock = token;
-                this.currentBEMElement = null;
-            } else if (token.val.startsWith(settings.element + settings.element)) {
-                token.val = token.val.replace(settings.element + settings.element, this.bemBlocks[this.bemBlocks.length - 2].val + settings.element);
-                this.currentBEMElement = token;
-            } else if (token.val.startsWith(settings.element)) {
-                if (token.val.endsWith(settings.element)) {
-                    token.val = token.val.replace(/_/g, "");
-                    this.bemBlocks.push(Object.assign({}, token));
-                    token.val = this.currentBEMBlock.val + settings.element + token.val + " " + token.val
-                    this.currentBEMBlock = this.bemBlocks[this.bemBlocks.length - 1];
-                    this.currentBEMElement = null;
-                } else {
-                    token.val = this.currentBEMBlock.val + token.val;
-                    this.currentBEMElement = token;
-                }
-            } else if (token.val.startsWith(settings.modifier)) {
-                if (this.currentBEMElement)
-                    token.val = this.currentBEMElement.val + token.val;
-                else if (this.currentBEMBlock)
-                    token.val = this.currentBEMBlock.val + token.val;
-            }
-        }
-    }
-};
 
-module.exports = function () {
-    var settings = {
-        'element': '_',
-        'modifier': '--'
-    };
-    var bemifier = new Bemifier();
+        if (token.type == "class") {
+            if (token.val.match(/^[a-zA-Z]/)) { // NewBlock
+                var arr = token.val.split("--")
+                var block = new BemToken(this, token)
+                    .setBlock(arr[0])
+                    .updateValue()
+                this.bemTokens.push(block)
+                if (arr[1])
+                    this.bemTokens.push(
+                        new BemToken(this, token)
+                        .setBlock(arr[0])
+                        .setModifier(arr[1])
+                        .updateValue()
+                    )
+
+                this.setCurrentBlock(block)
+            } else if (token.val.match(this.settings.beforeBlock)) { // PrevBlock
+                token.val = token.val.replace(/_/g, "")
+                var currentBemBlock = this.getBlock(2).val
+
+                var arr = token.val.split("--")
+                this.bemTokens.push(
+                    new BemToken(this, token)
+                    .setBlock(currentBemBlock)
+                    .setElement(arr[0])
+                    .updateValue()
+                )
+                if (arr[1])
+                    this.bemTokens.push(
+                        new BemToken(this, token)
+                        .setBlock(currentBemBlock)
+                        .setElement(arr[0])
+                        .setModifier(arr[1])
+                        .updateValue()
+                    )
+            } else if (token.val.match(this.settings.element)) { // NewElement
+                var newBlock = token.val.endsWith(this.settings.element) // NewBlock
+                token.val = token.val.replace(/_/g, "")
+
+                var arr = token.val.split("--")
+                this.currentElement = arr[0]
+                this.bemTokens.push(
+                    new BemToken(this, token)
+                    .setBlock(this.currentBlock)
+                    .setElement(arr[0])
+                    .updateValue()
+                )
+                if (arr[1])
+                    this.bemTokens.push(
+                        new BemToken(this, token)
+                        .setBlock(this.currentBlock)
+                        .setElement(arr[0])
+                        .setModifier(arr[1])
+                        .updateValue()
+                    )
+
+                if (newBlock) {
+                    var block = new BemToken(this, token)
+                        .setBlock(arr[0])
+                        .updateValue()
+                    this.bemTokens.push(block)
+                    this.setCurrentBlock(block)
+                }
+            } else if (token.val.match(this.settings.modifier)) { // NewModifier
+                var modifier = token.val.replace(/-/g, "")
+                this.bemTokens.push(
+                    new BemToken(this, token)
+                    .setBlock(this.currentBlock)
+                    .setElement(this.currentElement)
+                    .setModifier(modifier)
+                    .updateValue()
+                )
+            }
+        } else
+            this.bemTokens.push(token)
+    }
+}
+
+module.exports = function() {
+    var bemifier = new Bemifier()
     return {
-        postLex: function (tokens) {
-            tokens.forEach(function (token) {
-                bemifier.bemify(token, settings);
+        postLex: function(tokens) {
+            tokens.forEach(function(token) {
+                bemifier.bemify(token)
             });
-            return tokens;
+            return bemifier.bemTokens
         }
     }
 };
