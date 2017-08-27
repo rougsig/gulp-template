@@ -117,7 +117,7 @@ gulp.task('pug', function() {
         .pipe(plumber())
         .pipe(pug({
             pretty: true,
-            plugins : [pugBEMify()]
+            plugins: [pugBEMify()]
         }))
         .pipe(gulp.dest(path.build.html))
         .pipe(reload({
