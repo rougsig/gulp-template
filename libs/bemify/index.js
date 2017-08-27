@@ -82,10 +82,10 @@ class Bemifier {
             switch (this.prevToken.type) {
                 case 'outdent':
                 case 'newline':
-                    if (token.col <= this.getBlock(1).col) {
+                    if (this.currentBlock && token.col <= this.currentBlock.col) {
                         this.bemBlocks.pop()
+                        this.currentBlock = this.getBlock(1).block
                     }
-                    this.currentBlock = this.getBlock(1).block
             }
         }
         this.prevToken = token;
