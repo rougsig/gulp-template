@@ -5,7 +5,6 @@ var browserSync = require('browser-sync');
 var reload = browserSync.reload;
 
 var pug = require('gulp-pug');
-var pugBEMify = require('./libs/bemify');
 
 var postcss = require('gulp-postcss');
 var stylus = require('gulp-stylus');
@@ -16,6 +15,7 @@ var bgSize = require('postcss-image-sizes');
 var pxtorem = require('postcss-pxtorem');
 var short = require('postcss-short');
 var mqpacker = require('css-mqpacker');
+var sortCSSmq = require('sort-css-media-queries');
 var clean = require('postcss-clean');
 var sprites = require('postcss-sprites');
 var assets = require('postcss-assets');
@@ -38,7 +38,7 @@ var path = {
         sprite: 'scr/css/sprites.css'
     },
     src: {
-        html: 'src/**/*.pug',
+        html: 'src/*.pug',
         js: 'src/js/scripts.js',
         css: 'src/css/index.styl',
         img: 'src/img/**/*.*',
@@ -46,7 +46,7 @@ var path = {
         sprite: 'scr/css/sprites.postcss'
     },
     watch: {
-        html: 'src/**/*.pug',
+        html: 'src/*.pug',
         js: 'src/js/*.*',
         css: 'src/css/**/*.*',
         img: 'src/img/**/*.*',
@@ -78,7 +78,9 @@ gulp.task('css', function() {
                             "skip": "a"
                         }
                     }),
-                    mqpacker,
+                    mqpacker({
+                        sort: sortCSSmq
+                    }),
                     pxtorem
                 ])
             ]
@@ -116,8 +118,8 @@ gulp.task('pug', function() {
     gulp.src(path.src.html)
         .pipe(plumber())
         .pipe(pug({
-            pretty: true,
-            plugins: [pugBEMify()]
+            pretty: false,
+            locals: { "BEM": require('bem-pug-mixins').default }
         }))
         .pipe(gulp.dest(path.build.html))
         .pipe(reload({
@@ -138,25 +140,25 @@ gulp.task('js', function() {
 
 gulp.task('img', () =>
     gulp.src(path.src.img)
-    .pipe(imagemin([
-        imagemin.gifsicle({
-            interlaced: true
-        }),
-        imagemin.jpegtran({
-            progressive: true
-        }),
-        imagemin.optipng({
-            optimizationLevel: 5
-        }),
-        imagemin.svgo({
-            plugins: [{
-                removeViewBox: true
-            }]
-        })
-    ], {
-        verbose: true
-    }))
-    .pipe(gulp.dest(path.build.img))
+        .pipe(imagemin([
+            imagemin.gifsicle({
+                interlaced: true
+            }),
+            imagemin.jpegtran({
+                progressive: true
+            }),
+            imagemin.optipng({
+                optimizationLevel: 5
+            }),
+            imagemin.svgo({
+                plugins: [{
+                    removeViewBox: true
+                }]
+            })
+        ], {
+            verbose: true
+        }))
+        .pipe(gulp.dest(path.build.img))
 );
 
 gulp.task('watch', function() {

@@ -1,3 +1,5 @@
+include ../libs/bemto/index.pug
+
 doctype html
 html
 	head(lang="ru")
@@ -9,4 +11,37 @@ html
 		meta(name='format-detection', content='telephone=no')
 		link(rel="stylesheet", href="css/index.css")
 	body
+		+b.HEADER.header_
+			+e._content.content
+				+e._hamburger.hamburger_#js-hamburger
+					+e._inner
+				+e.A._logo.logo_(href="/")
+					+e.IMG._img(src="img/logo.svg" style="height: 32px")
+					+e._article
+						+e.P._title(data-locale="header.logo.title") Logo title
+						+e.P._description(data-locale="header.logo.text") Conversational UI Design Tool
+				+e._nav.nav_#js-nav
+					+e._close
+					+e.NAV._nav
+						+e.UL._list
+							+e.LI._item
+								+e.A._link.link(href="/features" data-locale="header.nav.why") Why Logo?
+							+e.LI._item
+								+e.A._link.link(href="/pricing" data-locale="header.nav.pricing") Pricing
+							+e.LI._item
+								+e.A._link.link(href="/about" data-locale="header.nav.about") About us
+							+e.LI._item
+								+e.A._btn.btn--clear_.--small(href="/register" data-locale="header.nav.login") Sign Up
+			+e.LI._item
+				+e._selector.selector_
+					+e._item
+						+e.IMG._icon(src="img/en.svg")#currentLocaleIcon
+						+e._text#currentLocale English
+					+e._list
+						+e._item.is-current(data-locale-selector="en")
+							+e.IMG._icon(src="img/en.svg")
+							+e._text English
+						+e._item(data-locale-selector="ru")
+							+e.IMG._icon(src="img/ru.svg")
+							+e._text Русский
 		script(type="text/javascript" src='js/scripts.js')

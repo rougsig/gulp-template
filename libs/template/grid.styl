@@ -1,0 +1,62 @@
+html
+	font-size: 100%
+
+.row
+	&--flex
+		display: flex
+	
+	&--wrap
+		flex-wrap: wrap
+	
+	&--column
+		flex-direction: column
+
+	&--start
+		justify-content: flex-start 
+	&--end
+		justify-content: flex-end
+	&--center
+		justify-content: center
+	
+	&--a-start
+		align-items: flex-start  
+	&--a-end
+		align-items: flex-end
+	&--a-center
+		align-items: center
+	&--a-baseline
+		align-items: baseline
+
+	&--c-start
+		align-content flex-start  
+	&--c-end
+		align-content flex-end
+	&--c-center
+		align-content: center
+
+	&--between
+		justify-content: space-between
+	&--around
+		justify-content: space-around
+	
+	&_col
+		display: block
+		&--start
+			align-self: flex-start 
+		&--end
+			align-self: flex-end
+		&--center
+			align-self: center
+
+		&--a-right
+			ml: auto
+		&--a-left
+			mr: auto
+
+for num in (1..100)
+	.row_col--flex{num}
+		flex: num
+
+for num in (1..100)
+	.row_col--w{num}
+		width: (num)%

@@ -37,20 +37,50 @@ icon($name)
 	size: width($name) height($name)
 iconB($name)
 	position: relative
-	min-width: width($name)
-	min-height: height($name)
 	&:before
 		content: ""
 		position: absolute
 		icon($name)
 iconA($name)
 	position: relative
-	min-width: width($name)
-	min-height: height($name)
 	&:after
 		content: ""
 		position: absolute
 		icon($name)
 
+baa()
+	position: relative
+	&:before
+	&:after
+		content: ''
+		position: absolute
+
 ls()
 	letter-spacing: (arguments / 1000)em
+
+lh()
+	line-height: arguments
+
+fz()
+	font-size: arguments
+
+ffa()
+	font-family: arguments
+
+fw()
+	font-weight: arguments
+
+txtd()
+	text-decoration: arguments
+
+txta()
+	text-align: arguments
+
+txtt()
+	text-transform: arguments
+	
+c()
+	color: arguments
+
+bgc()
+	background-color: arguments
